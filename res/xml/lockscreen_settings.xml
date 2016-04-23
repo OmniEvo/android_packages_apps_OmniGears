@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (C) 2015 The OmniROM Project
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
+
+    <PreferenceCategory
+        android:key="lockscreen_shortcut"
+        android:title="@string/lockscreen_shortcut_title" >
+
+        <com.android.settings.preference.SecureSettingSwitchPreference
+            android:key="lockscreen_shortcuts_enable"
+            android:title="@string/lockscreen_shortcuts_enable_title"
+            android:defaultValue="true"/>
+
+        <com.android.settings.preference.SecureCheckBoxPreference
+            android:key="lockscreen_camera_shortcut_enable"
+            android:title="@string/lockscreen_camera_shortcut_enable_title"
+            android:summary="@string/lockscreen_camera_shortcut_enable_summary"
+            android:defaultValue="true"
+            android:dependency="lockscreen_shortcuts_enable" />
+
+        <com.android.settings.preference.SecureCheckBoxPreference
+            android:key="lockscreen_left_shortcut_enable"
+            android:title="@string/lockscreen_left_shortcut_enable_title"
+            android:summary="@string/lockscreen_left_shortcut_enable_summary"
+            android:defaultValue="true"
+            android:dependency="lockscreen_shortcuts_enable" />
+
+        <com.android.settings.preference.SecureCheckBoxPreference
+            android:key="lockscreen_voice_shortcut"
+            android:title="@string/lockscreen_voice_shortcut_title"
+            android:summary="@string/lockscreen_voice_shortcut_summary"
+            android:defaultValue="true"
+            android:dependency="lockscreen_left_shortcut_enable" />
+
+        <Preference
+            android:key="lockscreen_shortcuts"
+            android:title="@string/lockscreen_shortcuts_title"
+            android:summary="@string/lockscreen_shortcuts_summary"
+            android:persistent="false"
+            android:dependency="lockscreen_shortcuts_enable" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="lockscreen_other"
+        android:title="@string/other_category" >
+
+        <com.android.settings.preference.SystemSettingSwitchPreference
+            android:key="lockscreen_indicator_display"
+            android:title="@string/lockscreen_indicator_display_title"
+            android:summary="@string/lockscreen_indicator_display_summary"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="lockscreen_wallpaper"
+        android:title="@string/lockscreen_wallpaper_title" >
+
+        <Preference
+            android:key="lockscreen_wallpaper_set"
+            android:title="@string/lockscreen_wallpaper_set_title"
+            android:persistent="false"/>
+
+        <Preference
+            android:key="lockscreen_wallpaper_clear"
+            android:title="@string/lockscreen_wallpaper_clear_title"
+            android:persistent="false"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="lockscreen_clock"
+        android:title="@string/lockscreen_clock" >
+
+        <com.android.settings.preference.SystemSettingSwitchPreference
+            android:key="lockscreen_clock_enable"
+            android:title="@string/lockscreen_clock_enable_title"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="lockscreen_clock_display_time"
+            android:title="@string/lockscreen_clock_display_time_title"
+            android:persistent="false"
+            android:defaultValue="true"
+            android:dependency="lockscreen_clock_enable" />
+
+        <CheckBoxPreference
+            android:key="lockscreen_clock_display_date"
+            android:title="@string/lockscreen_clock_display_date_title"
+            android:persistent="false"
+            android:defaultValue="true"
+            android:dependency="lockscreen_clock_enable" />
+
+        <CheckBoxPreference
+            android:key="lockscreen_clock_display_alarm"
+            android:title="@string/lockscreen_clock_display_alarm_title"
+            android:persistent="false"
+            android:defaultValue="true"
+            android:dependency="lockscreen_clock_enable" />
+
+        <org.omnirom.omnigears.preference.FontPreference
+            android:key="lockscreen_clock_font"
+            android:title="@string/lockscreen_clock_font_title"
+            android:persistent="false"
+            android:dependency="lockscreen_clock_enable" />
+
+        <org.omnirom.omnigears.preference.ColorPickerPreference
+            android:key="lockscreen_clock_color"
+            android:title="@string/lockscreen_clock_color_title"
+            android:persistent="false"
+            android:dependency="lockscreen_clock_enable" />
+
+        <org.omnirom.omnigears.preference.NumberPickerPreference
+            android:key="lockscreen_clock_size"
+            android:title="@string/lockscreen_clock_size_title"
+            android:persistent="false"
+            android:dependency="lockscreen_clock_enable" />
+
+        <com.android.settings.preference.SystemCheckBoxPreference
+            android:key="lockscreen_clock_shadow"
+            android:title="@string/lockscreen_clock_shadow_title"
+            android:defaultValue="false"
+            android:dependency="lockscreen_clock_enable" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
