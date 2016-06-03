@@ -28,6 +28,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.TrafficStats;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.os.RemoteException;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -64,7 +65,10 @@ public class BarsSettings extends SettingsPreferenceFragment implements
     private static final String NAVIGATIONBAR_ROOT = "category_navigationbar";
     private static final String TABLET_NAVIGATION_BAR = "enable_tablet_navigation";
     private static final String CUSTOM_HEADER_IMAGE_SHADOW = "status_bar_custom_header_shadow";
-
+    private static final String STATUS_BAR_QUICK_QS_PULLDOWN = "status_bar_quick_qs_pulldown";
+    
+    private ListPreference mQuickPulldown;    
+    
     private ListPreference mDaylightHeaderPack;
     private CheckBoxPreference mCustomHeaderImage;
     private SeekBarPreference mHeaderShadow;
@@ -76,6 +80,7 @@ public class BarsSettings extends SettingsPreferenceFragment implements
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        ContentResolver resolver = getActivity().getContentResolver();    
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.bars_settings);
 
@@ -128,6 +133,15 @@ public class BarsSettings extends SettingsPreferenceFragment implements
                 Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW, 0);
         mHeaderShadow.setValue((int)(((double) headerShadow / 255) * 100));
         mHeaderShadow.setOnPreferenceChangeListener(this);
+        
+        // Quick pulldown
+        mQuickPulldown = (ListPreference) findPreference(STATUS_BAR_QUICK_QS_PULLDOWN);
+        int quickPulldown = Settings.System.getInt(resolver,
+            Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, 0);
+        mQuickPulldown.setValue(String.valueOf(quickPulldown));
+        mQuickPulldown.setSummary(mQuickPulldown.getEntry());
+        mQuickPulldown.setOnPreferenceChangeListener(this);        
+        
     }
 
     @Override
@@ -144,6 +158,7 @@ public class BarsSettings extends SettingsPreferenceFragment implements
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        ContentResolver resolver = getActivity().getContentResolver();
         if (preference == mDaylightHeaderPack) {
             String value = (String) newValue;
             Settings.System.putString(getContentResolver(),
@@ -156,6 +171,13 @@ public class BarsSettings extends SettingsPreferenceFragment implements
             Settings.System.putInt(getContentResolver(),
                     Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW, realHeaderValue);
         }
+        if (preference == mQuickPulldown) {
+            int quickPulldown = Integer.valueOf((String) newValue);
+            int index = mQuickPulldown.findIndexOfValue((String) newValue);
+            Settings.System.putInt(resolver,
+                Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, quickPulldown);
+            mQuickPulldown.setSummary(mQuickPulldown.getEntries()[index]);
+        }        
         return true;
     }
 
