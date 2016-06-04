@@ -272,8 +272,15 @@
             android:entryValues="@array/button_back_kill_timeout_values"
             android:persistent="false"
             android:dependency="button_back_kill_enable"/>
-    </PreferenceCategory>
 
+        <PreferenceScreen
+            android:key="global_actions"
+            android:title="@string/global_actions_title"
+            android:summary="@string/global_actions_summary"
+            android:fragment="org.omnirom.omnigears.interfacesettings.GlobalActionsSettings" />
+
+    </PreferenceCategory>   
+    
 <!--    <PreferenceCategory
         android:key="button_headsethook"
         android:title="@string/button_headsethook_title" >

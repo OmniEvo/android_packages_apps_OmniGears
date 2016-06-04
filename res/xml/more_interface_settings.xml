@@ -80,11 +80,17 @@
                 android:summary="@string/dashboard_divider_show_summary"
                 android:defaultValue="true" />
 
-            <PreferenceScreen
-                android:key="global_actions"
-                android:title="@string/global_actions_title"
-                android:summary="@string/global_actions_summary"
-                android:fragment="org.omnirom.omnigears.interfacesettings.GlobalActionsSettings" />
+            <com.android.settings.preference.SystemCheckBoxPreference
+                android:key="screenshot_crop_and_share"
+                android:title="@string/screenshot_crop_and_share_title"
+                android:summary="@string/screenshot_crop_and_share_summary"
+                android:defaultValue="false" />
+
+            <!--<com.android.settings.preference.SystemCheckBoxPreference
+                android:key="screenshot_crop_behavior"
+                android:title="@string/screenshot_crop_behavior_title"
+                android:summary="@string/screenshot_crop_behavior_summary"
+                android:defaultValue="false" />-->
 
             <PreferenceScreen
                android:title="@string/adaway_title"
