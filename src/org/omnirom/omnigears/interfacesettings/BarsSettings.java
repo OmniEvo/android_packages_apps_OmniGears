@@ -65,9 +65,11 @@ public class BarsSettings extends SettingsPreferenceFragment implements
     private static final String NAVIGATIONBAR_ROOT = "category_navigationbar";
     private static final String TABLET_NAVIGATION_BAR = "enable_tablet_navigation";
     private static final String CUSTOM_HEADER_IMAGE_SHADOW = "status_bar_custom_header_shadow";
+    private static final String SMART_PULLDOWN = "smart_pulldown";
     private static final String STATUS_BAR_QUICK_QS_PULLDOWN = "status_bar_quick_qs_pulldown";
     
-    private ListPreference mQuickPulldown;    
+    private ListPreference mQuickPulldown; 
+    private ListPreference mSmartPulldown;   
     
     private ListPreference mDaylightHeaderPack;
     private CheckBoxPreference mCustomHeaderImage;
@@ -140,7 +142,14 @@ public class BarsSettings extends SettingsPreferenceFragment implements
             Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, 0);
         mQuickPulldown.setValue(String.valueOf(quickPulldown));
         mQuickPulldown.setSummary(mQuickPulldown.getEntry());
-        mQuickPulldown.setOnPreferenceChangeListener(this);        
+        mQuickPulldown.setOnPreferenceChangeListener(this); 
+
+        mSmartPulldown = (ListPreference) findPreference(SMART_PULLDOWN);
+        mSmartPulldown.setOnPreferenceChangeListener(this);
+        int smartPulldown = Settings.System.getInt(getContentResolver(),
+                Settings.System.QS_SMART_PULLDOWN, 0);
+        mSmartPulldown.setValue(String.valueOf(smartPulldown));
+        updateSmartPulldownSummary(smartPulldown);       
         
     }
 
@@ -177,8 +186,44 @@ public class BarsSettings extends SettingsPreferenceFragment implements
             Settings.System.putInt(resolver,
                 Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, quickPulldown);
             mQuickPulldown.setSummary(mQuickPulldown.getEntries()[index]);
+        }
+        if (preference == mSmartPulldown) {
+            int smartPulldown = Integer.valueOf((String) newValue);
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.QS_SMART_PULLDOWN,
+                    smartPulldown);
+            updateSmartPulldownSummary(smartPulldown);
         }        
         return true;
+    }
+
+    /*@Override
+    public boolean onPreferenceClick(Preference preference) {
+        return false;
+    }*/
+
+    private void updateSmartPulldownSummary(int value) {
+        Resources res = getResources();
+        if (value == 0) {
+            // Smart pulldown deactivated
+            mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_off));
+        } else {
+            String type = null;
+            switch (value) {
+                case 1:
+                    type = res.getString(R.string.smart_pulldown_dismissable);
+                    break;
+                case 2:
+                    type = res.getString(R.string.smart_pulldown_persistent);
+                    break;
+                default:
+                    type = res.getString(R.string.smart_pulldown_all);
+                    break;
+            }
+            // Remove title capitalized formatting
+            type = type.toLowerCase();
+            mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_summary, type));
+        }
     }
 
     private void getAvailableHeaderPacks(List<String> entries, List<String> values) {
