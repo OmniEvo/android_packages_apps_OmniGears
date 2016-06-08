@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.provider.SearchIndexableResource;
@@ -39,6 +40,7 @@ import com.android.internal.logging.MetricsLogger;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.search.Indexable;
+import com.android.settings.preference.SeekBarPreference;
 
 import org.omnirom.omnigears.R;
 import org.omnirom.omnigears.preference.AppMultiSelectListPreference;
@@ -67,6 +69,8 @@ public class LockscreenSettings extends SettingsPreferenceFragment implements
     private static final String KEY_CLOCK_DISPLAY_DATE = "lockscreen_clock_display_date";
     private static final String KEY_CLOCK_DISPLAY_ALARM = "lockscreen_clock_display_alarm";
     private static final String KEY_SHORTCUTS = "lockscreen_shortcuts";
+    private static final String LOCKSCREEN_ALPHA = "lockscreen_alpha";
+    private static final String LOCKSCREEN_SECURITY_ALPHA = "lockscreen_security_alpha";
 
     private Preference mSetWallpaper;
     private Preference mClearWallpaper;
@@ -77,6 +81,8 @@ public class LockscreenSettings extends SettingsPreferenceFragment implements
     private CheckBoxPreference mClockDisplayDate;
     private CheckBoxPreference mClockDisplayAlarm;
     private Preference mShortcuts;
+    private SeekBarPreference mLsAlpha;
+    private SeekBarPreference mLsSecurityAlpha;
 
     @Override
     protected int getMetricsCategory() {
@@ -87,6 +93,8 @@ public class LockscreenSettings extends SettingsPreferenceFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.lockscreen_settings);
+
+        ContentResolver resolver = getActivity().getContentResolver();
 
         mSetWallpaper = (Preference) findPreference(KEY_WALLPAPER_SET);
         mClearWallpaper = (Preference) findPreference(KEY_WALLPAPER_CLEAR);
@@ -103,7 +111,18 @@ public class LockscreenSettings extends SettingsPreferenceFragment implements
         mClockDisplayDate = (CheckBoxPreference) findPreference(KEY_CLOCK_DISPLAY_DATE);
         mClockDisplayAlarm = (CheckBoxPreference) findPreference(KEY_CLOCK_DISPLAY_ALARM);
 
-        ContentResolver resolver = getActivity().getContentResolver();
+        mLsAlpha = (SeekBarPreference) findPreference(LOCKSCREEN_ALPHA);
+        float alpha = Settings.System.getFloat(resolver,
+                Settings.System.LOCKSCREEN_ALPHA, 0.45f);
+        mLsAlpha.setValue((int)(100 * alpha));
+        mLsAlpha.setOnPreferenceChangeListener(this);
+
+        mLsSecurityAlpha = (SeekBarPreference) findPreference(LOCKSCREEN_SECURITY_ALPHA);
+        float alpha2 = Settings.System.getFloat(resolver,
+                Settings.System.LOCKSCREEN_SECURITY_ALPHA, 0.75f);
+        mLsSecurityAlpha.setValue((int)(100 * alpha2));
+        mLsSecurityAlpha.setOnPreferenceChangeListener(this);
+
         int color = Settings.System.getInt(resolver, Settings.System.LOCK_CLOCK_COLOR, Color.WHITE);
         mClockColor.setColor(color);
         String hexColor = String.format("#%08X", color);
@@ -175,15 +194,28 @@ public class LockscreenSettings extends SettingsPreferenceFragment implements
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         ContentResolver resolver = getContentResolver();
+        if (preference == mLsAlpha) {
+            int alpha = (Integer) newValue;
+            Settings.System.putFloat(resolver,
+                    Settings.System.LOCKSCREEN_ALPHA, alpha / 100.0f);
+            return true;
+        } else if (preference == mLsSecurityAlpha) {
+            int alpha2 = (Integer) newValue;
+            Settings.System.putFloat(resolver,
+                    Settings.System.LOCKSCREEN_SECURITY_ALPHA, alpha2 / 100.0f);
+            return true;
+        }
         if (preference == mClockFont) {
             String value = (String) newValue;
             int valueIndex = mClockFont.findIndexOfValue(value);
             mClockFont.setSummary(mClockFont.getEntries()[valueIndex]);
             Settings.System.putString(resolver, Settings.System.LOCK_CLOCK_FONT, value);
+           return true;
         } else if (preference == mClockColor) {
             String hexColor = String.format("#%08X", mClockColor.getColor());
             mClockColor.setSummary(hexColor);
             Settings.System.putInt(resolver, Settings.System.LOCK_CLOCK_COLOR, mClockColor.getColor());
+           return true;
         } else if (preference == mClockSize) {
             Integer value = (Integer) newValue;
             mClockSize.setSummary(String.valueOf(value));
