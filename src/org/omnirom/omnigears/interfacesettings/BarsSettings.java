@@ -65,8 +65,8 @@ public class BarsSettings extends SettingsPreferenceFragment implements
     private static final String NAVIGATIONBAR_ROOT = "category_navigationbar";
     private static final String TABLET_NAVIGATION_BAR = "enable_tablet_navigation";
     private static final String CUSTOM_HEADER_IMAGE_SHADOW = "status_bar_custom_header_shadow";
-    private static final String SMART_PULLDOWN = "smart_pulldown";
-    private static final String STATUS_BAR_QUICK_QS_PULLDOWN = "status_bar_quick_qs_pulldown";
+    private static final String PREF_SMART_PULLDOWN = "smart_pulldown";
+    private static final String QUICK_PULLDOWN = "quick_pulldown";
     
     private ListPreference mQuickPulldown; 
     private ListPreference mSmartPulldown;   
@@ -81,12 +81,12 @@ public class BarsSettings extends SettingsPreferenceFragment implements
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        ContentResolver resolver = getActivity().getContentResolver();    
+    public void onCreate(Bundle savedInstanceState) {    
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.bars_settings);
 
         PreferenceScreen prefScreen = getPreferenceScreen();
+        ContentResolver resolver = getActivity().getContentResolver();
 
         // Navigationbar catagory will not be displayed when the device is not a tablet
         // or the device has physical keys
@@ -137,16 +137,17 @@ public class BarsSettings extends SettingsPreferenceFragment implements
         mHeaderShadow.setOnPreferenceChangeListener(this);
         
         // Quick pulldown
-        mQuickPulldown = (ListPreference) findPreference(STATUS_BAR_QUICK_QS_PULLDOWN);
-        int quickPulldown = Settings.System.getInt(resolver,
-            Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, 0);
-        mQuickPulldown.setValue(String.valueOf(quickPulldown));
-        mQuickPulldown.setSummary(mQuickPulldown.getEntry());
-        mQuickPulldown.setOnPreferenceChangeListener(this); 
+        mQuickPulldown = (ListPreference) findPreference(QUICK_PULLDOWN);
+        mQuickPulldown.setOnPreferenceChangeListener(this);
+        int quickPulldownValue = Settings.System.getIntForUser(resolver,
+                Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, 1, UserHandle.USER_CURRENT);
+        mQuickPulldown.setValue(String.valueOf(quickPulldownValue));
+        updatePulldownSummary(quickPulldownValue); 
 
-        mSmartPulldown = (ListPreference) findPreference(SMART_PULLDOWN);
+        // Smart pulldown
+        mSmartPulldown = (ListPreference) findPreference(PREF_SMART_PULLDOWN);
         mSmartPulldown.setOnPreferenceChangeListener(this);
-        int smartPulldown = Settings.System.getInt(getContentResolver(),
+        int smartPulldown = Settings.System.getInt(resolver,
                 Settings.System.QS_SMART_PULLDOWN, 0);
         mSmartPulldown.setValue(String.valueOf(smartPulldown));
         updateSmartPulldownSummary(smartPulldown);       
@@ -181,20 +182,35 @@ public class BarsSettings extends SettingsPreferenceFragment implements
                     Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW, realHeaderValue);
         }
         if (preference == mQuickPulldown) {
-            int quickPulldown = Integer.valueOf((String) newValue);
-            int index = mQuickPulldown.findIndexOfValue((String) newValue);
-            Settings.System.putInt(resolver,
-                Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, quickPulldown);
-            mQuickPulldown.setSummary(mQuickPulldown.getEntries()[index]);
-        }
-        if (preference == mSmartPulldown) {
+            int quickPulldownValue = Integer.valueOf((String) newValue);
+            Settings.System.putIntForUser(resolver, Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN,
+                    quickPulldownValue, UserHandle.USER_CURRENT);
+            updatePulldownSummary(quickPulldownValue);
+            return true;
+        } else if (preference == mSmartPulldown) {
             int smartPulldown = Integer.valueOf((String) newValue);
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.QS_SMART_PULLDOWN,
-                    smartPulldown);
+            Settings.System.putInt(resolver, Settings.System.QS_SMART_PULLDOWN, smartPulldown);
             updateSmartPulldownSummary(smartPulldown);
-        }        
-        return true;
+            return true;
+        }
+        return false;
+    }
+
+    private void updatePulldownSummary(int value) {
+        Resources res = getResources();
+
+        if (value == 0) {
+            // quick pulldown deactivated
+            mQuickPulldown.setSummary(res.getString(R.string.quick_pulldown_off));
+        } else if (value == 3) {
+            // quick pulldown always
+            mQuickPulldown.setSummary(res.getString(R.string.quick_pulldown_summary_always));
+        } else {
+            String direction = res.getString(value == 2
+                    ? R.string.quick_pulldown_left
+                    : R.string.quick_pulldown_right);
+            mQuickPulldown.setSummary(res.getString(R.string.quick_pulldown_summary, direction));
+        }
     }
 
     /*@Override
@@ -204,24 +220,16 @@ public class BarsSettings extends SettingsPreferenceFragment implements
 
     private void updateSmartPulldownSummary(int value) {
         Resources res = getResources();
+
         if (value == 0) {
             // Smart pulldown deactivated
             mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_off));
+        } else if (value == 3) {
+            mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_none_summary));
         } else {
-            String type = null;
-            switch (value) {
-                case 1:
-                    type = res.getString(R.string.smart_pulldown_dismissable);
-                    break;
-                case 2:
-                    type = res.getString(R.string.smart_pulldown_persistent);
-                    break;
-                default:
-                    type = res.getString(R.string.smart_pulldown_all);
-                    break;
-            }
-            // Remove title capitalized formatting
-            type = type.toLowerCase();
+            String type = res.getString(value == 1
+                    ? R.string.smart_pulldown_dismissable
+                    : R.string.smart_pulldown_ongoing);
             mSmartPulldown.setSummary(res.getString(R.string.smart_pulldown_summary, type));
         }
     }

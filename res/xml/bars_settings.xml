@@ -102,8 +102,8 @@
                 android:dependency="status_bar_custom_header" />
 	    
             <ListPreference
-                android:key="status_bar_quick_qs_pulldown"
-                android:title="@string/title_quick_pulldown"
+                android:key="quick_pulldown"
+                android:title="@string/quick_pulldown_title"
                 android:entries="@array/quick_pulldown_entries"
                 android:entryValues="@array/quick_pulldown_values"
                 android:persistent="false" />
