@@ -186,7 +186,7 @@ public class BarsSettings extends SettingsPreferenceFragment implements
          } else if (preference == mSmartPulldown) {
             int smartPulldown = Integer.valueOf((String) newValue);
             Settings.System.putInt(getContentResolver(), 
-                    Settings.System.QS_SMART_PULLDOWN, smartPulldown;
+                    Settings.System.QS_SMART_PULLDOWN, smartPulldown);
             updateSmartPulldownSummary(smartPulldown);
          }
          return true;
